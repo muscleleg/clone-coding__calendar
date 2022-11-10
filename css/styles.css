@@ -11,7 +11,7 @@ body{
 }
 #calendar-todos {
   height: 520px;
-  /*width:690px;*/
+  width:690px;
   display: flex;
   /*justify-content: space-between;*/
 }
