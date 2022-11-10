@@ -11,9 +11,9 @@ body{
 }
 #calendar-todos {
   height: 520px;
-  width:690px;
+  /*width:690px;*/
   display: flex;
-  justify-content: space-between;
+  /*justify-content: space-between;*/
 }
 .calendar,.todos{
   height: 100%;
@@ -26,7 +26,7 @@ body{
   display: flex;
   flex-direction: column;
   height: 100%;
-
+  margin-right: 40px;
 }
 .calendar__title{
   height: 74px;
