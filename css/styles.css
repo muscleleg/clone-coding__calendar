@@ -10,13 +10,14 @@ body{
   height: 100vh;
 }
 #calendar-todos {
-  height: 520px;
+  margin:100px 0px;
   width:690px;
   display: flex;
   /*justify-content: space-between;*/
+  height: 520px;
+
 }
 .calendar,.todos{
-  height: 100%;
   background-color: #F1ACB7;
   border-radius: 20px;
 }
