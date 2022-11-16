@@ -15,17 +15,15 @@ const todosTitle = document.querySelector(".todos__title");
 const nowMonth = date.getMonth();
 const nowYear = date.getFullYear();
 const nowDate = date.getDate();
-
 //calendar__title을 출력할때 사용하는 임시 변수, calendar의 현재 날짜와 날짜를 이동할시나 달력의 day를 그릴때 parameter로 이용함
 let year = nowYear;
 let month = nowMonth;
 let dateOfMonth = nowDate;
-let holidaysPerMonth = [];
-//휴일 구하기
-async function getHoliday(year, month) {
-    const holidays = [];
 
-    console.log("========= 1 출력 =========");
+//휴일 구하기
+async function getHolidayFromOpenApi(year, month) {
+    const holidays = [];
+    // console.log("========= 1 출력 =========");
     const response = await fetch("https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" + year + "&solMonth=" + String(month + 1).padStart(2, "0") + "&_type=json");
     const openApiHoliday = await response.json();
     const data = openApiHoliday.response.body;
@@ -33,12 +31,12 @@ async function getHoliday(year, month) {
         console.log("쉬는날 없음");
     }
     if (data.totalCount == 1) {
-        console.log("쉬는날 하루");
+        // console.log("쉬는날 하루");
         console.log(data.items.item);
         holidays.push(data.items.item);
     }
     if (data.totalCount > 1) {
-        console.log("쉬는날 하루 이상");
+        // console.log("쉬는날 하루 이상");
         for (let holiday of data.items.item) {
             console.log(holiday);
             holidays.push(holiday);
@@ -47,8 +45,7 @@ async function getHoliday(year, month) {
     return holidays;
 }
 
-async function getHolidays() {
-    holidays = [];
+async function openApiSpeedTest() {
     let nextYear = year;
     let befroeYear = year;
     let nextMonth = month + 1;
@@ -62,19 +59,26 @@ async function getHolidays() {
         nextMonth = 0;
         nextYear = year + 1
     }
-
-    await getHoliday(befroeYear, befroeMonth);
-    await getHoliday(year, month);
-    await getHoliday(nextYear, nextMonth);
-
+    const nowSeconds = Date.now();
+    console.log("실행1");
+    await getHolidayFromOpenApi(befroeYear, befroeMonth);
+    console.log("실행2");
+    await getHolidayFromOpenApi(year, month);
+    console.log("실행3");
+    await getHolidayFromOpenApi(nextYear, nextMonth);
+    const afterSeconds = Date.now();
+    const totalSeconds = String((Number(afterSeconds) - Number(nowSeconds)) / 1000);
+    console.log("걸린시간 : " + totalSeconds + "초");
 }
-async function createHolidayOfLocalStorage(year){
-    holidaysPerMonth = [];
+
+async function createHolidaysToLocalStorage(year) {
+    const holidaysPerMonth = [];
     for (let i = 0; i < 12; i++) {
-      holidaysPerMonth.push(await getHoliday(year,i));
+        holidaysPerMonth.push(await getHolidayFromOpenApi(year, i));
     }
-    localStorage.setItem("h"+year,JSON.stringify(holidaysPerMonth));
+    localStorage.setItem("h" + year, JSON.stringify(holidaysPerMonth));
 }
+
 //============================== to-do 리스트 변수 ==============================//
 // todo를 꺼낼때 localstorage에서 가져옴, 따라서 키가 필요함, 초기 todo값은
 const todosInput = document.querySelector(".todos__input");
@@ -157,7 +161,7 @@ function handleCalendarDayItem(event) {
 //캘린더 [전달 + 1~N + 다음달] 출력을 위한 function 에 공통으로 사용되는 함수
 
 function createCalendarDayElement(calendarDayElement, calendarDayElementId) {
-    if (calendarDayElement.querySelector(".calendar__day-element--notification")==null) {
+    if (calendarDayElement.querySelector(".calendar__day-element--notification") == null) {
         let calendarDayElementNotification;
         calendarDayElement.id = calendarDayElementId
         if (localStorage.getItem(calendarDayElementId) !== null) {
@@ -171,25 +175,66 @@ function createCalendarDayElement(calendarDayElement, calendarDayElementId) {
     return calendarDayElement;
 }
 
+function findHolidaysFromLocal() {
+    if (localStorage.getItem("h" + year) == null) {
+        createHolidaysToLocalStorage(year);
+    }
+}
+
+function getHolidaysOfTargetMonth() {
+    const holidaysOfTargetMonth = [];
+
+    return holidaysOfTargetMonth;
+}
+
+function calcBeforeMonth(targetMonth) {
+     targetMonth = targetMonth - 1;
+    if (targetMonth < 0) {
+        targetMonth = 11;
+    }
+    return targetMonth;
+}
+
+function calcBeforeYear(targetYear, targetMonth) {
+     targetMonth = targetMonth - 1;
+    if (targetMonth < 0) {
+        targetMonth = 11;
+        targetYear = targetYear - 1;
+    }
+    return targetYear;
+}
+
+function calcNextMonth(targetMonth) {
+     targetMonth = targetMonth + 1;
+    if (targetMonth > 11) {
+        targetMonth = 0;
+    }
+    return targetMonth;
+}
+
+function calcNextYear(targetYear, targetMonth) {
+     targetYear = targetMonth + 1;
+    if (targetYear > 11) {
+        targetYear = 0;
+        targetYear = targetYear + 1;
+    }
+    return targetYear;
+}
+
 //캘린더 [전달 + 1~N + 다음달] 출력을 위한 function
 function printDay(targetYear, targetMonth) {
-    console.log("========= 2 출력 =========");
+    // getHolidaysOfTargetMonth();
 
+    console.log("========= 2 출력 =========");
     calendarTitle.innerText = `${getMonth[targetMonth]} - ${targetYear}`;
     calendarDay.innerText = "";
     let calendarDayElement;
-    let beforeMonth = targetMonth - 1;
-    let beforeYear = targetYear;
-    let nextMonth = targetMonth + 1;
-    let nextYear = targetYear;
-    if (beforeMonth < 0) {
-        beforeMonth = 11;
-        beforeYear = targetYear - 1;
-    }
-    if (nextMonth > 11) {
-        nextMonth = 0;
-        nextYear = targetYear + 1;
-    }
+    const beforeYear = calcBeforeYear(targetYear, targetMonth);
+    const nextYear = calcNextYear(targetYear,targetMonth);
+    const nextMonth = calcNextMonth(targetMonth);
+    const beforeMonth = calcBeforeMonth(targetMonth);
+
+
     let calendarDayElementId = "";
     //이전달
     for (let i = day[beforeMonth] - (new Date(targetYear, targetMonth, 1).getDay() - 1); i <= day[beforeMonth]; i++) {
@@ -244,11 +289,8 @@ async function printNextMonth() {
         month = 0;
         year = Number(year) + 1;
     }
-    console.log(holidaysPerMonth[month]);
+    console.log(JSON.parse(localStorage.getItem("h" + year))[month]);
     printDay(year, month);
-    // printHoliday(tmpYear, tmpMonth);
-
-
 }
 
 //to-do 리스트 입력 처리 function
