@@ -10,6 +10,7 @@ const calendarTitle = document.querySelector(".calendar__title span:nth-child(2)
 const leftChevron = document.querySelector(".calendar__title span:first-child");
 const rightChevron = document.querySelector(".calendar__title span:last-child");
 const calendarDay = document.querySelector(".calendar__day");
+const calendarLoadingIcon = document.querySelector(".calendar__loading");
 const todosTitle = document.querySelector(".todos__title");
 //초기화면을 위한 날짜, 최초의 화면은 현재 날짜로 하기 위함
 const nowMonth = date.getMonth();
@@ -20,6 +21,7 @@ let year = nowYear;
 let month = nowMonth;
 let dateOfMonth = nowDate;
 let apiLoading = false;
+
 //휴일 구하기
 async function getHolidayFromOpenApi(year, month) {
     const holidays = [];
@@ -159,14 +161,30 @@ function handleCalendarDayItem(event) {
 
 }
 
+//캘린더 [전달 + 1~N + 다음달] 출력을 위한 function 에 공통으로 사용되는 함수
 
+function createCalendarDayElement(calendarDayElement, calendarDayElementId) {
+    // if (calendarDayElement.querySelector(".calendar__day-element--notification") == null) {
+    let calendarDayElementNotification;
+    calendarDayElement.id = calendarDayElementId
+    if (localStorage.getItem(calendarDayElementId) !== null) {
+        calendarDayElementNotification = document.createElement("span");
+        calendarDayElementNotification.classList.add("calendar__day-element--notification");
+        calendarDayElement.addEventListener("mouseover", handleCalendarDayItemMouseover);
+        calendarDayElement.addEventListener("mouseleave", handleCalendarDayItemMouseleave);
+        calendarDayElement.appendChild(calendarDayElementNotification);
+    }
+    calendarDayElement.classList.add("calendar__day-element");
+
+    return calendarDayElement;
+}
 
 async function findHolidaysFromLocal(targetYear) {
-    apiLoading=true;
+    apiLoading = true;
     if (localStorage.getItem("H" + targetYear) == null) {
-       await createHolidaysToLocalStorage(targetYear);
+        await createHolidaysToLocalStorage(targetYear);
     }
-    apiLoading=false;
+    apiLoading = false;
 }
 
 // function getHolidaysOfTargetMonth() {
@@ -178,68 +196,58 @@ async function findHolidaysFromLocal(targetYear) {
 // }
 
 function calcBeforeMonth(targetMonth) {
-     targetMonth = targetMonth - 1;
+    targetMonth = targetMonth - 1;
     if (targetMonth < 0) {
         targetMonth = 11;
     }
     return targetMonth;
 }
 
-async function calcBeforeYear(targetYear, targetMonth) {
-     targetMonth = targetMonth - 1;
+function calcBeforeYear(targetYear, targetMonth) {
+    targetMonth = targetMonth - 1;
     if (targetMonth < 0) {
         targetMonth = 11;
         targetYear = targetYear - 1;
-        await findHolidaysFromLocal(targetYear);
     }
     return targetYear;
 }
 
 function calcNextMonth(targetMonth) {
-     targetMonth = targetMonth + 1;
+    targetMonth = targetMonth + 1;
     if (targetMonth > 11) {
         targetMonth = 0;
     }
     return targetMonth;
 }
 
-async function calcNextYear(targetYear, targetMonth) {
+function calcNextYear(targetYear, targetMonth) {
     targetMonth = targetMonth + 1;
     if (targetMonth > 11) {
         targetYear = targetYear + 1;
-        await findHolidaysFromLocal(targetYear);
     }
     return targetYear;
 }
-//캘린더 [전달 + 1~N + 다음달] 출력을 위한 function 에 공통으로 사용되는 함수
 
-function createCalendarDayElement(calendarDayElement, calendarDayElementId) {
-    if (calendarDayElement.querySelector(".calendar__day-element--notification") == null) {
-        let calendarDayElementNotification;
-        calendarDayElement.id = calendarDayElementId
-        if (localStorage.getItem(calendarDayElementId) !== null) {
-            calendarDayElementNotification = document.createElement("span");
-            calendarDayElementNotification.classList.add("calendar__day-element--notification");
-            calendarDayElement.addEventListener("mouseover", handleCalendarDayItemMouseover);
-            calendarDayElement.addEventListener("mouseleave", handleCalendarDayItemMouseleave);
-            calendarDayElement.appendChild(calendarDayElementNotification);
-        }
-    }
-    return calendarDayElement;
-}
 //캘린더 [전달 + 1~N + 다음달] 출력을 위한 function
 async function printDay(targetYear, targetMonth) {
     // getHolidaysOfTargetMonth();
 
-    console.log("========= 2 출력 =========");
     calendarTitle.innerText = `${getMonth[targetMonth]} - ${targetYear}`;
     calendarDay.innerText = "";
-    let calendarDayElement;
-    const beforeYear = await calcBeforeYear(targetYear, targetMonth);
-    const nextYear = await calcNextYear(targetYear,targetMonth);
-    const nextMonth = await calcNextMonth(targetMonth);
-    const beforeMonth = await calcBeforeMonth(targetMonth);
+    calendarLoadingIcon.style.display = 'flex';
 
+    let calendarDayElement;
+    const beforeYear = calcBeforeYear(targetYear, targetMonth);
+
+
+    const nextYear = calcNextYear(targetYear, targetMonth);
+
+    const nextMonth = calcNextMonth(targetMonth);
+    const beforeMonth = calcBeforeMonth(targetMonth);
+    await findHolidaysFromLocal(nextYear);
+    await findHolidaysFromLocal(year);
+    await findHolidaysFromLocal(beforeYear);
+    calendarLoadingIcon.style.display = 'none';
 
     let calendarDayElementId = "";
     //이전달
@@ -248,7 +256,7 @@ async function printDay(targetYear, targetMonth) {
         calendarDayElement.innerText = `${i}`;
         calendarDayElementId = `D${beforeYear}${String(beforeMonth + 1).padStart(2, "0")}${i}`;
         createCalendarDayElement(calendarDayElement, calendarDayElementId);
-        calendarDayElement.classList.add("calendar__day-element");
+        // calendarDayElement.classList.add("calendar__day-element");
         calendarDayElement.classList.add("calendar__day--gray");
         calendarDay.appendChild(calendarDayElement);
         document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
@@ -259,7 +267,7 @@ async function printDay(targetYear, targetMonth) {
         calendarDayElement.innerText = String(j).padStart(2, "0");
         calendarDayElementId = `D${targetYear}${String(targetMonth + 1).padStart(2, "0")}${String(j).padStart(2, "0")}`
         createCalendarDayElement(calendarDayElement, calendarDayElementId);
-        calendarDayElement.classList.add("calendar__day-element");
+        // calendarDayElement.classList.add("calendar__day-element");
         calendarDay.appendChild(calendarDayElement);
         document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
     }
@@ -270,7 +278,7 @@ async function printDay(targetYear, targetMonth) {
             calendarDayElement.innerText = String(k).padStart(2, "0");
             calendarDayElementId = `D${nextYear}${String(nextMonth + 1).padStart(2, "0")}${String(k).padStart(2, "0")}`;
             createCalendarDayElement(calendarDayElement, calendarDayElementId);
-            calendarDayElement.classList.add("calendar__day-element");
+            // calendarDayElement.classList.add("calendar__day-element");
             calendarDayElement.classList.add("calendar__day--gray");
             calendarDay.appendChild(calendarDayElement);
             document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
@@ -280,17 +288,16 @@ async function printDay(targetYear, targetMonth) {
 
 
 //캘린더 월 이동 처리 위한 function
-function printLastMonth() {
-    month = month - 1;
-    if (month < 0) {
-        month = 11;
-        year = year - 1;
+async function printBeforeMonth() {
+    if(apiLoading==false) {
+        year = await calcBeforeYear(year, month);
+        month = await calcBeforeMonth(month);
+        await printDay(year, month);
     }
-    printDay(year, month);
 }
 
 async function printNextMonth() {
-    if(apiLoading==false) {
+    if (apiLoading == false) {
         year = await calcNextYear(year, month)
         month = await calcNextMonth(month);
         await printDay(year, month);
@@ -322,7 +329,6 @@ async function initCalendar() {
     // holidaysPerMonth = JSON.parse(localStorage.getItem("h"+nowYear));
     // console.log(holidaysPerMonth);
 //캘린더 초기값 [calendar__day span] 출력
-    await findHolidaysFromLocal(year);
     await printDay(nowYear, nowMonth);
     document.querySelector(`#D${nowYear}${nowMonth + 1}${String(nowDate).padStart(2, "0")}`).classList.add("calendar__day--clicked");
 // printHoliday(nowYear,nowMonth);
@@ -336,7 +342,7 @@ initCalendar();
 
 //============================== calendar 월 이동 이벤트 리스너 ==============================//
 //[calendar__title]의 좌우화살표 이벤트리스너
-leftChevron.addEventListener("click", printLastMonth);
+leftChevron.addEventListener("click", printBeforeMonth);
 rightChevron.addEventListener("click", printNextMonth);
 
 

@@ -31,6 +31,7 @@ body{
   display: flex;
   flex-direction: column;
   margin-right: 40px;
+  position: relative;
 }
 .calendar__title{
   height: 74px;
@@ -138,6 +139,27 @@ body{
   z-index: 1;
   bottom: 10px;
   border-radius: 50%;
+}
+.calendar__loading{
+  position: absolute;
+  display: none;
+  width: 398px;
+  height: 520px;
+  justify-content: center;
+  align-items: center;
+}
+.calendar__loading i{
+  opacity: 0.6;
+  animation: rotateZ 1s linear infinite;
+}
+@keyframes rotateZ {
+  from{
+    transform: rotateZ(0);
+  }
+  to{
+    transform: rotateZ(360deg);
+  }
+
 }
 .todos{
   width: 253px;
