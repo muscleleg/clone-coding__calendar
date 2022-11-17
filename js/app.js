@@ -21,6 +21,7 @@ let year = nowYear;
 let month = nowMonth;
 let dateOfMonth = nowDate;
 let apiLoading = false;
+let extractedHolidays = [];
 
 //휴일 구하기
 async function getHolidayFromOpenApi(year, month) {
@@ -98,7 +99,13 @@ if (savedTodos !== null) {
 //사용자가 현재 사용하는 달력의 날짜를 의미한다. 해당 값을 통해 localStroage에서 todo를 가져온다. 정확히는 지금 보고 있는 day의 아이디 값이다.
 let localStorageItemName = todayKey;
 //============================================================//
+function deleteTodoItem(event){
+    const itemId = parseInt(event.target.parentElement.id);
+    todos = todos.filter((t)=> t.id !== itemId);
+    localStorage.setItem(localStorageItemName,JSON.stringify(todos));
+    printTodos(localStorageItemName);
 
+}
 //일별 todo리스트를 출력할때 사용하는 function
 function printTodos(itemId) {
     let todosDay = todosTitle.querySelector("span:first-child");
@@ -108,12 +115,24 @@ function printTodos(itemId) {
     let tmpDay = new Date(itemId.substr(1, 4), itemId.substr(5, 2) - 1, itemId.substr(7, 2)).getDay();
     todosDay.innerText = dateOfMonth;
     todosDayOfWeek.innerText = getDayOfWeek[tmpDay];
+    for(d of extractedHolidays){
+        if(d.locdate==itemId.substring(1)){
+            todosDayOfWeek.innerText =  todosDayOfWeek.innerText + `(${d.dateName})`
+        }
+    }
     todoListItems = JSON.parse(localStorage.getItem(itemId));
     todosListItemsContainer.innerText = "";
     if (todoListItems !== null) {
         for (let i = 0; i < todoListItems.length; i++) {
             let todoListItem = document.createElement("li");
-            todoListItem.innerText = `${todoListItems[i].text}`;
+            todoListItem.innerText = `${todoListItems[i].text} `;
+            todoListItem.id = `${todoListItems[i].id}`;
+            let str ="<i class='fa-solid fa-trash-can'></i>";
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(str, 'text/html');
+            let trashIcon = doc.body.querySelector("i");
+            trashIcon.addEventListener("click", deleteTodoItem);
+            todoListItem.appendChild(trashIcon);
             todosListItemsContainer.appendChild(todoListItem);
         }
     }
@@ -135,8 +154,6 @@ function handleCalendarDayItemMouseleave(event) {
     addNotification.classList.add("calendar__day-element--notification");
     event.target.appendChild(addNotification);
     document.querySelector(`#${event.target.id}`).addEventListener("click", handleCalendarDayItem);
-
-
 }
 
 // day를 click할시에 작동하는 function
@@ -345,14 +362,14 @@ async function printDay(targetYear, targetMonth) {
             document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
         }
     }
-    const holidays = createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMonth);
+    extractedHolidays = createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMonth);
     console.log("==========holidays :============");
     console.log(holidays);
     for(holiday of holidays){
         // console.log(document.getElementById("D"+holiday.locdate));
         const holidayElement = document.getElementById("D"+holiday.locdate);
         if(holidayElement !== null){
-            holidayElement.classList.add("calendar__day-element--holiday");
+            holidayElement.style.backgroundColor="rgba(191,35,57,.2)";
         }
     }
 }

@@ -113,6 +113,10 @@ body{
 .calendar__day--hover .calendar__day-element--notification{
   display: none;
 }
+.calendar__day > span:nth-child(7n),.calendar__day > span:nth-child(7n+1),.calendar__day-element--holiday{
+  /*color: white;*/
+  background-color: rgba(191,35,57,.2);
+}
 .calendar__day .calendar__day-element {
   background-color: #F4BDC5;
   width: 48px;
@@ -135,14 +139,12 @@ body{
   position: absolute;
   width: 3px;
   height: 3px;
-  background-color: red;
-  z-index: 1;
+  background-color: #96220c;
+  z-index: 99;
   bottom: 10px;
   border-radius: 50%;
 }
-.calendar__day-element--holiday{
-  color :red;
-}
+
 .calendar__loading{
   position: absolute;
   display: none;
@@ -182,10 +184,21 @@ body{
   font-size: 70px;
 }
 .todos__list{
+  list-style-type: decimal;
+  list-style-position: inside;
   /*text-align: center;*/
-  padding-left: 80px;
+  padding: 0px 30px;
   flex:1;
-  list-style: inside;
+  overflow: scroll;
+  -ms-overflow-style:none
+  scrollbar-width: none;
+  margin-bottom: 5px;
+}
+.todos__list li{
+  margin-bottom: 10px;
+}
+.todos__list::-webkit-scrollbar{
+  display: none;
 }
 .todos__form{
   margin-left: 30px;
