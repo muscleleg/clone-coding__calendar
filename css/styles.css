@@ -140,6 +140,9 @@ body{
   bottom: 10px;
   border-radius: 50%;
 }
+.calendar__day-element--holiday{
+  color :red;
+}
 .calendar__loading{
   position: absolute;
   display: none;

@@ -187,13 +187,6 @@ async function findHolidaysFromLocal(targetYear) {
     apiLoading = false;
 }
 
-// function getHolidaysOfTargetMonth() {
-//     const holidaysOfTargetMonth = [];
-//
-//
-//
-//     return holidaysOfTargetMonth;
-// }
 
 function calcBeforeMonth(targetMonth) {
     targetMonth = targetMonth - 1;
@@ -226,6 +219,74 @@ function calcNextYear(targetYear, targetMonth) {
         targetYear = targetYear + 1;
     }
     return targetYear;
+}
+function createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMonth){
+    holidays = [];
+    // 2021 2022 2022
+    if(beforeYear < year && year == nextYear){
+        const beforeHolidays = JSON.parse(localStorage.getItem("H" + beforeYear));
+        if(beforeHolidays[beforeMonth].length!=0){
+            for(d of beforeHolidays[beforeMonth]){
+                holidays.push(d);
+            }
+        }
+        const nowHolidays = JSON.parse(localStorage.getItem("H" + year));
+        if(nowHolidays[month].length!=0){
+            for(d of nowHolidays[month]){
+                holidays.push(d);
+            }
+        }
+        if(nowHolidays[nextMonth].length!=0){
+            for(d of nowHolidays[nextMonth]){
+                holidays.push(d);
+            }
+        }
+        return holidays;
+    }
+    // 2022 2022 2022
+    if(beforeYear == year && year == nextYear){
+        const nowHolidays = JSON.parse(localStorage.getItem("H" + year));
+        if(nowHolidays[beforeMonth].length!=0){
+            for(d of nowHolidays[beforeMonth]){
+                holidays.push(d);
+            }
+        }
+        if(nowHolidays[month].length!=0){
+            for(d of nowHolidays[month]){
+                holidays.push(d);
+            }
+        }
+        if(nowHolidays[nextMonth].length!=0){
+            for(d of nowHolidays[nextMonth]){
+                holidays.push(d);
+            }
+        }
+        return holidays;
+
+    }
+    // 2022 2022 2023
+    if(beforeYear == year && year < nextYear){
+        const nowHolidays = JSON.parse(localStorage.getItem("H" + year));
+        if(nowHolidays[beforeMonth].length!=0){
+            for(d of nowHolidays[beforeMonth]){
+                holidays.push(d);
+            }
+        }
+        if(nowHolidays[month].length!=0){
+            for(d of nowHolidays[month]){
+                holidays.push(d);
+            }
+        }
+        const nextHolidays = JSON.parse(localStorage.getItem("H" + nextYear));
+        if(nextHolidays[nextMonth].length!=0){
+            for(d of nextHolidays[nextMonth]){
+                holidays.push(d);
+            }
+        }
+        return holidays;
+    }
+    return holidays;
+
 }
 
 //캘린더 [전달 + 1~N + 다음달] 출력을 위한 function
@@ -282,6 +343,16 @@ async function printDay(targetYear, targetMonth) {
             calendarDayElement.classList.add("calendar__day--gray");
             calendarDay.appendChild(calendarDayElement);
             document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
+        }
+    }
+    const holidays = createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMonth);
+    console.log("==========holidays :============");
+    console.log(holidays);
+    for(holiday of holidays){
+        // console.log(document.getElementById("D"+holiday.locdate));
+        const holidayElement = document.getElementById("D"+holiday.locdate);
+        if(holidayElement !== null){
+            holidayElement.classList.add("calendar__day-element--holiday");
         }
     }
 }
