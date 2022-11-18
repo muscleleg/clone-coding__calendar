@@ -87,14 +87,14 @@ body{
   /*https://velog.io/@mooongs/flex1%EC%9D%98-%EC%9D%98%EB%AF%B8*/
   flex:1;
  }
-.calendar__day-element--clicked,.calendar__day-element--hover{
+.calendar__day-item--clicked,.calendar__day-item--hover{
   color:white!important;
 
 }
-.calendar__day-element--clicked{
+.calendar__day-item--clicked{
   background-color: #1f2d3d!important;
 }
-.calendar__day-element--hover{
+.calendar__day-item--hover{
   background-color: #c22a42!important;
 }
 @keyframes scale-in-center {
@@ -107,17 +107,17 @@ body{
     opacity: 1;
   }
 }
-.calendar__day-element--clicked .calendar__day-element--notification{
+.calendar__day-item--clicked .calendar__day-item-notification{
   display: none;
 }
-.calendar__day-element--hover .calendar__day-element--notification{
+.calendar__day-item--hover .calendar__day-item-notification{
   display: none;
 }
-.calendar__day > span:nth-child(7n),.calendar__day > span:nth-child(7n+1),.calendar__day-element--holiday{
+.calendar__day > span:nth-child(7n),.calendar__day > span:nth-child(7n+1),.calendar__day-item--holiday{
   /*color: white;*/
   background-color: rgba(191,35,57,.2);
 }
-.calendar__day .calendar__day-element {
+.calendar__day .calendar__day-item {
   background-color: #F4BDC5;
   width: 48px;
   height: 48px;
@@ -135,7 +135,7 @@ body{
 .calendar__day--gray{
   color: #959595;
 }
-.calendar__day-element--notification{
+.calendar__day-item-notification{
   position: absolute;
   width: 3px;
   height: 3px;

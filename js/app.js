@@ -2,9 +2,25 @@
 //https://nomadcoders.co/ - > 코코아톡 클론 코딩, 바닐라 js로 크롬앱 만들기
 //============================== 캘린더 변수==============================//
 const date = new Date();
-
+//초기화면을 위한 날짜, 최초의 화면은 현재 날짜로 하기 위함
+const nowMonth = date.getMonth();
+const nowYear = date.getFullYear();
+const nowDate = date.getDate();
 const getMonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 let day = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function getLeapYear(year) {
+    if(year % 4 == 0 && year % 100 == 0 && year % 400 == 0){
+        day[1] = 29;
+    }
+    if (year % 4 == 0 && year % 100 ==0){
+        return
+    }
+    if (year % 4 == 0) {
+        day[1] = 29;
+    }
+}
+
 const getDayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const calendarTitle = document.querySelector(".calendar__title span:nth-child(2)");
 const leftChevron = document.querySelector(".calendar__title span:first-child");
@@ -12,10 +28,7 @@ const rightChevron = document.querySelector(".calendar__title span:last-child");
 const calendarDay = document.querySelector(".calendar__day");
 const calendarLoadingIcon = document.querySelector(".calendar__loading");
 const todosTitle = document.querySelector(".todos__title");
-//초기화면을 위한 날짜, 최초의 화면은 현재 날짜로 하기 위함
-const nowMonth = date.getMonth();
-const nowYear = date.getFullYear();
-const nowDate = date.getDate();
+
 //calendar__title을 출력할때 사용하는 임시 변수, calendar의 현재 날짜와 날짜를 이동할시나 달력의 day를 그릴때 parameter로 이용함
 let year = nowYear;
 let month = nowMonth;
@@ -101,16 +114,15 @@ let localStorageItemName = todayKey;
 
 //============================================================//
 function deleteTodoItem(event) {
-    if(confirm("일정을 삭제하시겠습니까?"))
-    {
+    if (confirm("일정을 삭제하시겠습니까?")) {
         const itemId = parseInt(event.target.parentElement.id);
         todos = todos.filter((t) => t.id !== itemId);
         localStorage.setItem(localStorageItemName, JSON.stringify(todos));
         if (todos.length == 0) {
             localStorage.removeItem(localStorageItemName);
-            document.getElementById(localStorageItemName).removeEventListener("mouseleave", handleCalendarDayItemMouseleave);
+            document.getElementById(localStorageItemName).removeEventListener("mouseleave", dayElementMouseleave);
             document.getElementById(localStorageItemName).removeEventListener("mouseover", dayElementMouseover);
-            document.getElementById(localStorageItemName).querySelector(".calendar__day-element--notification").remove();
+            document.getElementById(localStorageItemName).querySelector(".calendar__day-item-notification").remove();
         }
         printTodos(localStorageItemName);
     }
@@ -152,33 +164,33 @@ function printTodos(itemId) {
 // notification을 가진 day를 Mouseover할시에 작동하는 function
 
 function dayElementMouseover(event) {
-    event.target.classList.add("calendar__day-element--hover");
+    event.target.classList.add("calendar__day-item--hover");
     event.target.innerText = JSON.parse(localStorage.getItem(`D${event.target.id.substr(1, 4)}${event.target.id.substr(5, 2)}${event.target.id.substr(7, 2)}`)).length;
 
 }
 
 // notification을 가진 day를 Mouseleave할시에 작동하는 function
-function handleCalendarDayItemMouseleave(event) {
-    event.target.classList.remove("calendar__day-element--hover");
+function dayElementMouseleave(event) {
+    event.target.classList.remove("calendar__day-item--hover");
     event.target.innerText = `${event.target.id.substring(7, 9)}`;
     let addNotification = document.createElement("span");
-    addNotification.classList.add("calendar__day-element--notification");
+    addNotification.classList.add("calendar__day-item-notification");
     event.target.appendChild(addNotification);
-    document.querySelector(`#${event.target.id}`).addEventListener("click", handleCalendarDayItem);
+    document.querySelector(`#${event.target.id}`).addEventListener("click", dayElementClick);
 }
 
 // day를 click할시에 작동하는 function
-function handleCalendarDayItem(event) {
+function dayElementClick(event) {
     //D 2022 11 10
     //calendar__day--clicked 효과 적용
     dateOfMonth = event.target.id.substring(event.target.id.length - 2, event.target.id.length);
-    let days = document.querySelectorAll(".calendar__day-element");
+    let days = document.querySelectorAll(".calendar__day-item");
     // for (let d = 0; d < days.length; d++) {
     for (let day of days) {
-        day.classList.remove("calendar__day-element--clicked");
+        day.classList.remove("calendar__day-item--clicked");
     }
 
-    event.target.classList.add("calendar__day-element--clicked");
+    event.target.classList.add("calendar__day-item--clicked");
     localStorageItemName = event.target.id;
     todos = [];
     savedTodos = JSON.parse(localStorage.getItem(localStorageItemName));
@@ -192,18 +204,18 @@ function handleCalendarDayItem(event) {
 
 //캘린더 [전달 + 1~N + 다음달] 출력을 위한 function 에 공통으로 사용되는 함수
 
-function createCalendarDayElement(calendarDayElement, calendarDayElementId) {
-    // if (calendarDayElement.querySelector(".calendar__day-element--notification") == null) {
+function createDayItem(calendarDayElement, calendarDayElementId) {
+    // if (calendarDayElement.querySelector(".calendar__day-item-notification") == null) {
     let calendarDayElementNotification;
     calendarDayElement.id = calendarDayElementId
     if (localStorage.getItem(calendarDayElementId) !== null) {
         calendarDayElementNotification = document.createElement("span");
-        calendarDayElementNotification.classList.add("calendar__day-element--notification");
+        calendarDayElementNotification.classList.add("calendar__day-item-notification");
         calendarDayElement.addEventListener("mouseover", dayElementMouseover);
-        calendarDayElement.addEventListener("mouseleave", handleCalendarDayItemMouseleave);
+        calendarDayElement.addEventListener("mouseleave", dayElementMouseleave);
         calendarDayElement.appendChild(calendarDayElementNotification);
     }
-    calendarDayElement.classList.add("calendar__day-element");
+    calendarDayElement.classList.add("calendar__day-item");
 
     return calendarDayElement;
 }
@@ -343,21 +355,21 @@ async function printDay(targetYear, targetMonth) {
         calendarDayElement = document.createElement("span");
         calendarDayElement.innerText = `${i}`;
         calendarDayElementId = `D${beforeYear}${String(beforeMonth + 1).padStart(2, "0")}${i}`;
-        createCalendarDayElement(calendarDayElement, calendarDayElementId);
-        // calendarDayElement.classList.add("calendar__day-element");
+        createDayItem(calendarDayElement, calendarDayElementId);
+        // calendarDayElement.classList.add("calendar__day-item");
         calendarDayElement.classList.add("calendar__day--gray");
         calendarDay.appendChild(calendarDayElement);
-        document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
+        document.querySelector(`#${calendarDayElementId}`).addEventListener("click", dayElementClick);
     }
     //현재
     for (let j = 1; j <= day[targetMonth]; j++) {
         calendarDayElement = document.createElement("span");
         calendarDayElement.innerText = String(j).padStart(2, "0");
         calendarDayElementId = `D${targetYear}${String(targetMonth + 1).padStart(2, "0")}${String(j).padStart(2, "0")}`
-        createCalendarDayElement(calendarDayElement, calendarDayElementId);
-        // calendarDayElement.classList.add("calendar__day-element");
+        createDayItem(calendarDayElement, calendarDayElementId);
+        // calendarDayElement.classList.add("calendar__day-item");
         calendarDay.appendChild(calendarDayElement);
-        document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
+        document.querySelector(`#${calendarDayElementId}`).addEventListener("click", dayElementClick);
     }
     //다음달
     if (!(7 - (new Date(nextYear, nextMonth, 1).getDay()) === 7)) {
@@ -365,11 +377,11 @@ async function printDay(targetYear, targetMonth) {
             calendarDayElement = document.createElement("span");
             calendarDayElement.innerText = String(k).padStart(2, "0");
             calendarDayElementId = `D${nextYear}${String(nextMonth + 1).padStart(2, "0")}${String(k).padStart(2, "0")}`;
-            createCalendarDayElement(calendarDayElement, calendarDayElementId);
-            // calendarDayElement.classList.add("calendar__day-element");
+            createDayItem(calendarDayElement, calendarDayElementId);
+            // calendarDayElement.classList.add("calendar__day-item");
             calendarDayElement.classList.add("calendar__day--gray");
             calendarDay.appendChild(calendarDayElement);
-            document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
+            document.querySelector(`#${calendarDayElementId}`).addEventListener("click", dayElementClick);
         }
     }
     extractedHolidays = createHolidaysArray(beforeYear, beforeMonth, year, month, nextYear, nextMonth);
@@ -389,6 +401,7 @@ async function printDay(targetYear, targetMonth) {
 async function printBeforeMonth() {
     if (apiLoading == false) {
         year = await calcBeforeYear(year, month);
+        getLeapYear(year);
         month = await calcBeforeMonth(month);
         await printDay(year, month);
     }
@@ -397,13 +410,14 @@ async function printBeforeMonth() {
 async function printNextMonth() {
     if (apiLoading == false) {
         year = await calcNextYear(year, month)
+        getLeapYear(year);
         month = await calcNextMonth(month);
         await printDay(year, month);
     }
 }
 
 //to-do 리스트 입력 처리 function
-function handleToDoButton(event) {
+function addTodoItem(event) {
     event.preventDefault();
     if (todosInput.value === "") {
         return;
@@ -417,19 +431,14 @@ function handleToDoButton(event) {
     printTodos(localStorageItemName);
     todosInput.value = "";
     if (todos.length == 1) {
-        createCalendarDayElement(document.getElementById(localStorageItemName), localStorageItemName);
+        createDayItem(document.getElementById(localStorageItemName), localStorageItemName);
     }
 }
 
 async function initCalendar() {
-    // if(localStorage.getItem("h"+nowYear)==null){
-    //     await createHolidayOfLocalStorage(nowYear);
-    // }
-    // holidaysPerMonth = JSON.parse(localStorage.getItem("h"+nowYear));
-    // console.log(holidaysPerMonth);
 //캘린더 초기값 [calendar__day span] 출력
     await printDay(nowYear, nowMonth);
-    document.querySelector(`#D${nowYear}${nowMonth + 1}${String(nowDate).padStart(2, "0")}`).classList.add("calendar__day-element--clicked");
+    document.querySelector(`#D${nowYear}${nowMonth + 1}${String(nowDate).padStart(2, "0")}`).classList.add("calendar__day-item--clicked");
 // printHoliday(nowYear,nowMonth);
 //to-do 리스트 초기값 실행
     printTodos(localStorageItemName);
@@ -447,4 +456,4 @@ rightChevron.addEventListener("click", printNextMonth);
 
 //============================== to-do 리스트 입력 이벤트 리스너 ==============================//
 const todosForm = document.querySelector(".todos__form");
-todosForm.addEventListener("submit", handleToDoButton);
+todosForm.addEventListener("submit", addTodoItem);
