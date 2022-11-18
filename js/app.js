@@ -98,14 +98,25 @@ if (savedTodos !== null) {
 }
 //사용자가 현재 사용하는 달력의 날짜를 의미한다. 해당 값을 통해 localStroage에서 todo를 가져온다. 정확히는 지금 보고 있는 day의 아이디 값이다.
 let localStorageItemName = todayKey;
+
 //============================================================//
-function deleteTodoItem(event){
-    const itemId = parseInt(event.target.parentElement.id);
-    todos = todos.filter((t)=> t.id !== itemId);
-    localStorage.setItem(localStorageItemName,JSON.stringify(todos));
-    printTodos(localStorageItemName);
+function deleteTodoItem(event) {
+    if(confirm("일정을 삭제하시겠습니까?"))
+    {
+        const itemId = parseInt(event.target.parentElement.id);
+        todos = todos.filter((t) => t.id !== itemId);
+        localStorage.setItem(localStorageItemName, JSON.stringify(todos));
+        if (todos.length == 0) {
+            localStorage.removeItem(localStorageItemName);
+            document.getElementById(localStorageItemName).removeEventListener("mouseleave", handleCalendarDayItemMouseleave);
+            document.getElementById(localStorageItemName).removeEventListener("mouseover", dayElementMouseover);
+            document.getElementById(localStorageItemName).querySelector(".calendar__day-element--notification").remove();
+        }
+        printTodos(localStorageItemName);
+    }
 
 }
+
 //일별 todo리스트를 출력할때 사용하는 function
 function printTodos(itemId) {
     let todosDay = todosTitle.querySelector("span:first-child");
@@ -115,9 +126,9 @@ function printTodos(itemId) {
     let tmpDay = new Date(itemId.substr(1, 4), itemId.substr(5, 2) - 1, itemId.substr(7, 2)).getDay();
     todosDay.innerText = dateOfMonth;
     todosDayOfWeek.innerText = getDayOfWeek[tmpDay];
-    for(d of extractedHolidays){
-        if(d.locdate==itemId.substring(1)){
-            todosDayOfWeek.innerText =  todosDayOfWeek.innerText + `(${d.dateName})`
+    for (d of extractedHolidays) {
+        if (d.locdate == itemId.substring(1)) {
+            todosDayOfWeek.innerText = todosDayOfWeek.innerText + `(${d.dateName})`
         }
     }
     todoListItems = JSON.parse(localStorage.getItem(itemId));
@@ -127,7 +138,7 @@ function printTodos(itemId) {
             let todoListItem = document.createElement("li");
             todoListItem.innerText = `${todoListItems[i].text} `;
             todoListItem.id = `${todoListItems[i].id}`;
-            let str ="<i class='fa-solid fa-trash-can'></i>";
+            let str = "<i class='fa-solid fa-trash-can'></i>";
             let parser = new DOMParser();
             let doc = parser.parseFromString(str, 'text/html');
             let trashIcon = doc.body.querySelector("i");
@@ -140,15 +151,15 @@ function printTodos(itemId) {
 
 // notification을 가진 day를 Mouseover할시에 작동하는 function
 
-function handleCalendarDayItemMouseover(event) {
-    event.target.classList.add("calendar__day--hover");
+function dayElementMouseover(event) {
+    event.target.classList.add("calendar__day-element--hover");
     event.target.innerText = JSON.parse(localStorage.getItem(`D${event.target.id.substr(1, 4)}${event.target.id.substr(5, 2)}${event.target.id.substr(7, 2)}`)).length;
 
 }
 
 // notification을 가진 day를 Mouseleave할시에 작동하는 function
 function handleCalendarDayItemMouseleave(event) {
-    event.target.classList.remove("calendar__day--hover");
+    event.target.classList.remove("calendar__day-element--hover");
     event.target.innerText = `${event.target.id.substring(7, 9)}`;
     let addNotification = document.createElement("span");
     addNotification.classList.add("calendar__day-element--notification");
@@ -164,9 +175,10 @@ function handleCalendarDayItem(event) {
     let days = document.querySelectorAll(".calendar__day-element");
     // for (let d = 0; d < days.length; d++) {
     for (let day of days) {
-        day.classList.remove("calendar__day--clicked");
+        day.classList.remove("calendar__day-element--clicked");
     }
-    event.target.classList.add("calendar__day--clicked");
+
+    event.target.classList.add("calendar__day-element--clicked");
     localStorageItemName = event.target.id;
     todos = [];
     savedTodos = JSON.parse(localStorage.getItem(localStorageItemName));
@@ -187,7 +199,7 @@ function createCalendarDayElement(calendarDayElement, calendarDayElementId) {
     if (localStorage.getItem(calendarDayElementId) !== null) {
         calendarDayElementNotification = document.createElement("span");
         calendarDayElementNotification.classList.add("calendar__day-element--notification");
-        calendarDayElement.addEventListener("mouseover", handleCalendarDayItemMouseover);
+        calendarDayElement.addEventListener("mouseover", dayElementMouseover);
         calendarDayElement.addEventListener("mouseleave", handleCalendarDayItemMouseleave);
         calendarDayElement.appendChild(calendarDayElementNotification);
     }
@@ -237,44 +249,45 @@ function calcNextYear(targetYear, targetMonth) {
     }
     return targetYear;
 }
-function createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMonth){
+
+function createHolidaysArray(beforeYear, beforeMonth, year, month, nextYear, nextMonth) {
     holidays = [];
     // 2021 2022 2022
-    if(beforeYear < year && year == nextYear){
+    if (beforeYear < year && year == nextYear) {
         const beforeHolidays = JSON.parse(localStorage.getItem("H" + beforeYear));
-        if(beforeHolidays[beforeMonth].length!=0){
-            for(d of beforeHolidays[beforeMonth]){
+        if (beforeHolidays[beforeMonth].length != 0) {
+            for (d of beforeHolidays[beforeMonth]) {
                 holidays.push(d);
             }
         }
         const nowHolidays = JSON.parse(localStorage.getItem("H" + year));
-        if(nowHolidays[month].length!=0){
-            for(d of nowHolidays[month]){
+        if (nowHolidays[month].length != 0) {
+            for (d of nowHolidays[month]) {
                 holidays.push(d);
             }
         }
-        if(nowHolidays[nextMonth].length!=0){
-            for(d of nowHolidays[nextMonth]){
+        if (nowHolidays[nextMonth].length != 0) {
+            for (d of nowHolidays[nextMonth]) {
                 holidays.push(d);
             }
         }
         return holidays;
     }
     // 2022 2022 2022
-    if(beforeYear == year && year == nextYear){
+    if (beforeYear == year && year == nextYear) {
         const nowHolidays = JSON.parse(localStorage.getItem("H" + year));
-        if(nowHolidays[beforeMonth].length!=0){
-            for(d of nowHolidays[beforeMonth]){
+        if (nowHolidays[beforeMonth].length != 0) {
+            for (d of nowHolidays[beforeMonth]) {
                 holidays.push(d);
             }
         }
-        if(nowHolidays[month].length!=0){
-            for(d of nowHolidays[month]){
+        if (nowHolidays[month].length != 0) {
+            for (d of nowHolidays[month]) {
                 holidays.push(d);
             }
         }
-        if(nowHolidays[nextMonth].length!=0){
-            for(d of nowHolidays[nextMonth]){
+        if (nowHolidays[nextMonth].length != 0) {
+            for (d of nowHolidays[nextMonth]) {
                 holidays.push(d);
             }
         }
@@ -282,21 +295,21 @@ function createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMont
 
     }
     // 2022 2022 2023
-    if(beforeYear == year && year < nextYear){
+    if (beforeYear == year && year < nextYear) {
         const nowHolidays = JSON.parse(localStorage.getItem("H" + year));
-        if(nowHolidays[beforeMonth].length!=0){
-            for(d of nowHolidays[beforeMonth]){
+        if (nowHolidays[beforeMonth].length != 0) {
+            for (d of nowHolidays[beforeMonth]) {
                 holidays.push(d);
             }
         }
-        if(nowHolidays[month].length!=0){
-            for(d of nowHolidays[month]){
+        if (nowHolidays[month].length != 0) {
+            for (d of nowHolidays[month]) {
                 holidays.push(d);
             }
         }
         const nextHolidays = JSON.parse(localStorage.getItem("H" + nextYear));
-        if(nextHolidays[nextMonth].length!=0){
-            for(d of nextHolidays[nextMonth]){
+        if (nextHolidays[nextMonth].length != 0) {
+            for (d of nextHolidays[nextMonth]) {
                 holidays.push(d);
             }
         }
@@ -316,10 +329,7 @@ async function printDay(targetYear, targetMonth) {
 
     let calendarDayElement;
     const beforeYear = calcBeforeYear(targetYear, targetMonth);
-
-
     const nextYear = calcNextYear(targetYear, targetMonth);
-
     const nextMonth = calcNextMonth(targetMonth);
     const beforeMonth = calcBeforeMonth(targetMonth);
     await findHolidaysFromLocal(nextYear);
@@ -362,14 +372,14 @@ async function printDay(targetYear, targetMonth) {
             document.querySelector(`#${calendarDayElementId}`).addEventListener("click", handleCalendarDayItem);
         }
     }
-    extractedHolidays = createHolidaysArray(beforeYear,beforeMonth,year,month,nextYear,nextMonth);
+    extractedHolidays = createHolidaysArray(beforeYear, beforeMonth, year, month, nextYear, nextMonth);
     console.log("==========holidays :============");
     console.log(holidays);
-    for(holiday of holidays){
+    for (holiday of holidays) {
         // console.log(document.getElementById("D"+holiday.locdate));
-        const holidayElement = document.getElementById("D"+holiday.locdate);
-        if(holidayElement !== null){
-            holidayElement.style.backgroundColor="rgba(191,35,57,.2)";
+        const holidayElement = document.getElementById("D" + holiday.locdate);
+        if (holidayElement !== null) {
+            holidayElement.style.backgroundColor = "rgba(191,35,57,.2)";
         }
     }
 }
@@ -377,7 +387,7 @@ async function printDay(targetYear, targetMonth) {
 
 //캘린더 월 이동 처리 위한 function
 async function printBeforeMonth() {
-    if(apiLoading==false) {
+    if (apiLoading == false) {
         year = await calcBeforeYear(year, month);
         month = await calcBeforeMonth(month);
         await printDay(year, month);
@@ -406,8 +416,9 @@ function handleToDoButton(event) {
     localStorage.setItem(localStorageItemName, JSON.stringify(todos));
     printTodos(localStorageItemName);
     todosInput.value = "";
-
-    createCalendarDayElement(document.getElementById(localStorageItemName), localStorageItemName);
+    if (todos.length == 1) {
+        createCalendarDayElement(document.getElementById(localStorageItemName), localStorageItemName);
+    }
 }
 
 async function initCalendar() {
@@ -418,7 +429,7 @@ async function initCalendar() {
     // console.log(holidaysPerMonth);
 //캘린더 초기값 [calendar__day span] 출력
     await printDay(nowYear, nowMonth);
-    document.querySelector(`#D${nowYear}${nowMonth + 1}${String(nowDate).padStart(2, "0")}`).classList.add("calendar__day--clicked");
+    document.querySelector(`#D${nowYear}${nowMonth + 1}${String(nowDate).padStart(2, "0")}`).classList.add("calendar__day-element--clicked");
 // printHoliday(nowYear,nowMonth);
 //to-do 리스트 초기값 실행
     printTodos(localStorageItemName);
