@@ -26,12 +26,6 @@ const todosInput = document.querySelector(".todos__input");
 const todosForm = document.querySelector(".todos__form");
 
 const todayKey = `D${nowYear}${String(nowMonth + 1).padStart(2, "0")}${String(nowDate).padStart(2, "0")}`;
-let todos = [];
-// let todoListItems = JSON.parse(localStorage.getItem(todayKey));
-let savedTodos = JSON.parse(localStorage.getItem(todayKey));
-if (savedTodos !== null) {
-    todos = savedTodos;
-}
 let localStorageItemName = todayKey;
 leftChevron.addEventListener("click", clickBeforeMonth);
 rightChevron.addEventListener("click", clickNextMonth);
@@ -61,7 +55,7 @@ async function createHolidaysToLocalStorage(year) {
     localStorage.setItem("H" + year, JSON.stringify(holidaysPerMonth));
 
 }
-async function getHolidayFromOpenApi(year, month) {
+async function getHolidayFromOpenApi(year, month) { //promise all 적용
     /*
     {
     "response":{
@@ -208,6 +202,7 @@ async function openApiSpeedTest() {
 //============================================================//
 function deleteTodoItem(event) {
     if (confirm("일정을 삭제하시겠습니까?")) {
+        let todos = JSON.parse(localStorage.getItem(localStorageItemName));
         const itemId = parseInt(event.target.parentElement.id);
         todos = todos.filter((t) => t.id !== itemId);
         localStorage.setItem(localStorageItemName, JSON.stringify(todos));
@@ -291,13 +286,14 @@ function printTodos(itemId) {
 //to-do 리스트 입력 처리 function
 function addTodoItem(event) {
     event.preventDefault();
-    todos=[];
-    savedTodos = JSON.parse(localStorage.getItem(localStorageItemName));
+    let todos=[];
+    let savedTodos = JSON.parse(localStorage.getItem(localStorageItemName));
     if (savedTodos !== null) {
         //todos에 Null이 들어간다면 todos는 빈 배열에서 null로 변해버림, null인 상태에서 push가 되지않음
         todos = savedTodos;
     }
-    if (todosInput.value === "") {
+    if (todosInput.value.trim() === "") {
+        todosInput.value = "";
         return;
     }
     const newTodosItem = {
