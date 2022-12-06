@@ -78,13 +78,13 @@ async function findHolidaysFromLocal(targetYear) {
 
 async function createHolidaysToLocalStorage(year) {
     let apiLoop = true;
-    let test = [];
+    let rawHolidays = [];
     while (apiLoop) {
-        await Promise.all([
+        await Promise.allSettled([
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
                 year +
-                "&solMonth=01&_type=json"
+                "&solMonth=03&_type=json"
             ).then((response) => response.json()),
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
@@ -94,12 +94,7 @@ async function createHolidaysToLocalStorage(year) {
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
                 year +
-                "&solMonth=03&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=04&_type=json"
+                "&solMonth=01&_type=json"
             ).then((response) => response.json()),
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
@@ -109,12 +104,17 @@ async function createHolidaysToLocalStorage(year) {
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
                 year +
-                "&solMonth=06&_type=json"
+                "&solMonth=04&_type=json"
             ).then((response) => response.json()),
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
                 year +
                 "&solMonth=07&_type=json"
+            ).then((response) => response.json()),
+            fetch(
+                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+                year +
+                "&solMonth=06&_type=json"
             ).then((response) => response.json()),
             fetch(
                 "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
@@ -145,25 +145,35 @@ async function createHolidaysToLocalStorage(year) {
                 let temp;
                 for (let d of data) {
                     console.log(d);
-                    if (d.response.body.totalCount > 1) {
-                        test.push(d.response.body.items.item);
-                    } else if (d.response.body.totalCount == 1) {
+                    if (d.value.response.body.totalCount > 1) {
+                        rawHolidays.push(d.value.response.body.items.item);
+                    } else if (d.value.response.body.totalCount == 1) {
                         temp = [];
-                        temp.push(d.response.body.items.item);
-                        test.push(temp);
-                    } else {
-                        temp = [];
-                        test.push(temp);
+                        temp.push(d.value.response.body.items.item);
+                        rawHolidays.push(temp);
                     }
+
                 }
                 apiLoop = false;
-                console.log(test);
-
-                localStorage.setItem("H" + year, JSON.stringify(test));
+                rawHolidays.sort(function compare(a,b){
+                    if(a[0].locdate>b[0].locdate) return 1;
+                    if(a[0].locdate<b[0].locdate) return -1;
+                    return 0;
+                });
+                let savedHolidays = [];
+                let j = 0;
+                for(let i = 1; i <= 12; i++){
+                    if(parseInt(String(rawHolidays[j][0].locdate).substring(4,6))==i){
+                        savedHolidays.push(rawHolidays[j]);
+                        j++;
+                    }else{
+                        savedHolidays.push([]);
+                    };
+                }
+                console.log(rawHolidays);
+                localStorage.setItem("H" + year, JSON.stringify(savedHolidays));
             }
-        ).catch(error => {
-            apiLoop = confirm("api요청을 실패하였습니다. 다시 요청하시겠습니까?");
-        });
+        );
     }
 }
 
