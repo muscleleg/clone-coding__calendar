@@ -79,104 +79,161 @@ async function findHolidaysFromLocal(targetYear) {
 async function createHolidaysToLocalStorage(year) {
     let apiLoop = true;
     let rawHolidays = [];
-    while (apiLoop) {
-        await Promise.allSettled([
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=03&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=02&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=01&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=05&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=04&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=07&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=06&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=08&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=09&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=10&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=11&_type=json"
-            ).then((response) => response.json()),
-            fetch(
-                "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
-                year +
-                "&solMonth=12&_type=json"
-            ).then((response) => response.json()),
-        ]).then((data) => {
-                let temp;
-                for (let d of data) {
-                    console.log(d);
-                    if (d.value.response.body.totalCount > 1) {
-                        rawHolidays.push(d.value.response.body.items.item);
-                    } else if (d.value.response.body.totalCount == 1) {
-                        temp = [];
-                        temp.push(d.value.response.body.items.item);
-                        rawHolidays.push(temp);
-                    }
-
-                }
-                apiLoop = false;
-                rawHolidays.sort(function compare(a,b){
-                    if(a[0].locdate>b[0].locdate) return 1;
-                    if(a[0].locdate<b[0].locdate) return -1;
-                    return 0;
-                });
-                let savedHolidays = [];
-                let j = 0;
-                for(let i = 1; i <= 12; i++){
-                    if(parseInt(String(rawHolidays[j][0].locdate).substring(4,6))==i){
-                        savedHolidays.push(rawHolidays[j]);
-                        j++;
-                    }else{
-                        savedHolidays.push([]);
-                    };
-                }
-                console.log(rawHolidays);
-                localStorage.setItem("H" + year, JSON.stringify(savedHolidays));
-            }
-        );
+    let apiUrl;
+    let apiUrlArray = [];
+    for(let i = 1; i <= 12; i++){
+        apiUrl = "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" + String(year) + "&solMonth="+String(i).padStart(2,"0")+"&_type=json"
+        apiUrlArray.push(apiUrl);
     }
-}
+        await Promise.allSettled(
+            // [fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=03&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=02&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=01&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=05&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=04&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=07&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=06&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=08&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=09&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=10&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=11&_type=json"
+            // ),
+            // fetch(
+            //     "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getHoliDeInfo?serviceKey=ekC4oLj9HiRR136lGjdLiiNDOzqPEKSYXbumkXqOxtHTCnA1pxSmHbI4FacDWPcwui2XiEme6dl9UJT2Bva6fA%3D%3D&solYear=" +
+            //     year +
+            //     "&solMonth=12&_type=json"
+            // )]
+             apiUrlArray.map(api=>{return fetch(api);})
 
+        ).then(async rawResponses => {
+            const promise = new Promise(async (resolve, reject) => {
+                for (let i = 0; i < rawResponses.length; i++) {
+                    let reRequest = true;
+                    while (reRequest) {
+                        if(rawResponses[i].status == 'rejected'){
+                            reRequest = confirm(`${year}년 ${i + 1}월 휴일 데이터 요청을 실패하였습니다. 재요청하시겠습니까?`);
+                            console.log("api재호출");
+                            rawResponses[i].value = await fetch(rawResponses[i].value.url);
+                            rawResponses[i].status = 'fulfilled';
+                            console.log(rawResponses[i].value);
+                            console.log("api재호출완료");
+                        }else{
+                            reRequest = false;
+                        }
+                    }
+                    console.log("async 끝");
+                }
+                // await rawResponses.forEach(async (res,index)=>{
+                //         console.log("async 시작");
+                //         if (res.status == 'fulfilled') {
+                //             console.log("api재호출");
+                //             rawResponses[index].value = await fetch(res.value.url);
+                //             console.log(rawResponses[index].value);
+                //             console.log("api재호출완료");
+                //         }
+                //         console.log("async 끝");
+                // });
+                await resolve(rawResponses);
+            });
+            return promise;
+        }).then(rawResponses => {
+            console.log("마지막");
+            console.log(rawResponses);
+            return Promise.all(rawResponses.map(res=>{
+                return res.value.json();
+            }))
+        }).then((data)=>{
+            console.log(data);
+            let temp;
+            let item;
+            let totalCount;
+            //api 데이터 파싱
+            for (let d of data) {
+                item = d.response.body.items.item;
+                totalCount = d.response.body.totalCount;
+                if (totalCount > 1) {
+                    rawHolidays.push(item);
+                } else if (totalCount == 1) {
+                    temp = [];
+                    temp.push(item);
+                    rawHolidays.push(temp);
+                }
+
+            }
+            //월 정렬
+            rawHolidays.sort(function compare(a,b){
+                if(a[0].locdate>b[0].locdate) return 1;
+                if(a[0].locdate<b[0].locdate) return -1;
+                return 0;
+            });
+
+            //공휴일 없는 달 처리
+            let savedHolidays = [];
+            let j = 0;
+            for(let i = 1; i <= 12; i++){
+                if(parseInt(String(rawHolidays[j][0].locdate).substring(4,6))==i){
+                    savedHolidays.push(rawHolidays[j]);
+                    j++;
+                }else{
+                    savedHolidays.push([]);
+                };
+            }
+            console.log(rawHolidays);
+            localStorage.setItem("H" + year, JSON.stringify(savedHolidays));
+        });
+        console.log("끝");
+}
+async function test(responses,res,index) {
+    await console.log("async테스트 전!!!!!!!!!!");
+    if (res.status == 'fulfilled') {
+        responses[index] = await fetch(res.value.url);
+        console.log("테스트"+responses[index]);
+    }
+    console.log("async테스트 후")
+}
 
 function createHolidaysArray(beforeYear, beforeMonth, year, month, nextYear, nextMonth) {
     let holidays = [];
@@ -274,7 +331,6 @@ async function openApiSpeedTest() {
     console.log("걸린시간 : " + totalSeconds + "초");
 }
 
-//============================================================//
 function deleteTodoItem(event) {
     if (confirm("일정을 삭제하시겠습니까?")) {
         let todos = JSON.parse(localStorage.getItem(localStorageItemName));
